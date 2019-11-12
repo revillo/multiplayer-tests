@@ -1,0 +1,7 @@
+main: AirHockey.lua
+multiplayer:
+    enabled: true
+    serverMain: AirHockeyServer.lua
+title: Multiplayer air hockey
+owner: revillo
+description: Air Hockey
