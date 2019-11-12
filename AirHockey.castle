@@ -1,4 +1,4 @@
-main: AirHockey.lua
+main: AirHockeyClient.lua
 multiplayer:
     enabled: true
     serverMain: AirHockeyServer.lua
