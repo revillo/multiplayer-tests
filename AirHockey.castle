@@ -5,3 +5,4 @@ multiplayer:
 title: Multiplayer air hockey
 owner: revillo
 description: Air Hockey
+unlisted: true
