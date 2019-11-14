@@ -220,11 +220,11 @@ function GameClient:keypressed(key)
 end
 
 
-local function drawImageCircle(img, x, y, r, scale)
+local function drawImageCircle(img, x, y, r)
 	
     local function stencil()
         --drawing the planet
-        love.graphics.circle("fill", x, y, r * 1.1);
+        love.graphics.circle("fill", x, y, r * 1.0);
     end
 
     love.graphics.setColor(1,1,1,1)
@@ -239,7 +239,14 @@ local function drawImageCircle(img, x, y, r, scale)
     love.graphics.setStencilTest("greater", 0)
 
     --Draw the inside
-    love.graphics.draw(img, x - r - 5, y - r - 5, 0, 50 / img:getWidth());
+
+    love.graphics.setColor(0,0,0);
+    stencil();
+    love.graphics.setColor(1,1,1);
+
+    local scale = math.max((r * 2 + 10) / img:getWidth(), (r * 2 + 10) / img:getHeight());
+
+    love.graphics.draw(img, x - r - 5, y - r - 5, 0, scale);
 
     --End stencil test
     love.graphics.setStencilTest()
