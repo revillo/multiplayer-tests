@@ -31,9 +31,9 @@ function GameServer:start()
 
     createWall(wallThickness / 2, th / 10, wallThickness, th / 2)
     createWall(tw - wallThickness / 2, th / 10, wallThickness, th / 2)
+    
     createWall(wallThickness / 2, th - th / 10, wallThickness, th / 2)
     createWall(tw - wallThickness / 2, th - th / 10, wallThickness, th / 2)
-
 
     -- Corners
 
@@ -57,16 +57,19 @@ function GameServer:start()
     -- Dynamic bodies
 
     local function createDynamicBody(shapeId)
-        local bodyId = self.physics:newBody(worldId, 800 / 2, 450 / 2, 'dynamic')
+        local bodyId = self.physics:newBody(worldId, tw / 2, th / 2, 'dynamic')
         local fixtureId = self.physics:newFixture(bodyId, shapeId, 1)
         self.physics:destroyObject(shapeId)
         self.physics:setFriction(fixtureId, 1.2)
-        self.physics:setRestitution(fixtureId, 0.8)
-        self.physics:setLinearDamping(bodyId, 0.8)
+        self.physics:setRestitution(fixtureId, 0.7)
+        self.physics:setLinearDamping(bodyId, 1.5)
         return bodyId
     end
 
     self.ballBodyId = createDynamicBody(self.physics:newCircleShape(15))
+
+    self.scoreA = 0;
+    self.scoreB = 0;
 end
 
 
@@ -111,10 +114,18 @@ function GameServer:connect(clientId)
         send('addPlayer', clientId, player.bodyId)
     end
 
-
-
     -- Add player body and table entry
-    local x, y = math.random(70, 800 - 70), 450 - 70
+    local x, y;
+
+    local tx, ty, tw, th = self:getTableDimensions();
+    y = th * 0.5;
+
+    if (sideB) then
+        x = tw * 0.8;
+    else
+        x = tw * 0.2;
+    end
+
     local bodyId = self.physics:newBody(self.physics:getWorld(), x, y, 'dynamic')
     local shapeId = self.physics:newCircleShape(20)
     local fixtureId = self.physics:newFixture(bodyId, shapeId, 0)
@@ -126,8 +137,29 @@ function GameServer:connect(clientId)
 end
 
 function GameServer:disconnect(clientId)
+
+    local player = self.players[clientId];
+    local bodyId = player.bodyId;
+    self.physics:destroyObject(bodyId);
+    self:send({ kind = 'removePlayer' }, 0, clientId)
+
 end
 
+function GameServer:syncScore()
+    self:send({kind = 'score'}, self.scoreA, self.scoreB);
+end
+
+function GameServer:awardPoint(sideB)
+
+    if (sideB) then
+        self.scoreB = self.scoreB + 1;
+    else
+        self.scoreA = self.scoreA + 1;
+    end
+
+    self:syncScore();
+
+end
 
 -- Update
 
@@ -138,13 +170,26 @@ function GameServer:update(dt)
     -- Check scoring
     local ballBody = self.physics:objectForId(self.ballBodyId)
     local ballX, ballY = ballBody:getPosition()
-    if ballX < 0 or ballX > 800 then
+
+    local tx, ty, tw, th = self:getTableDimensions();
+
+    if ballX < 0 or ballX > tw then
+
+
+        if (ballX < 0) then
+            self:awardPoint(true);
+        else
+            self:awardPoint(false);
+        end
+
         self.physics:setOwner(self.ballBodyId, nil, false)
-        ballBody:setPosition(800 / 2, 450 / 2)
+        ballBody:setPosition(tw / 2, th / 2)
         ballBody:setAngle(0)
         ballBody:setLinearVelocity(0, 0)
         ballBody:setAngularVelocity(0)
     end
+
+
 
     -- Send physics syncs
     local worldId, world = self.physics:getWorld()

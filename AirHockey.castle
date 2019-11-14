@@ -2,7 +2,7 @@ main: AirHockeyClient.lua
 multiplayer:
     enabled: true
     serverMain: AirHockeyServer.lua
-title: Multiplayer air hockey
+title: Air Hockey
 owner: revillo
-description: Air Hockey
-unlisted: true
+description: Air Hockey - Click or touch to drag your paddle and hit the puck into the opponent's goal.
+draft: true

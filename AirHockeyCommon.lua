@@ -40,6 +40,14 @@ function GameCommon:define()
         channel = MAIN_RELIABLE_CHANNEL,
         selfSend = true,
     })
+
+    self:defineMessageKind('score', {
+        to = 'all',
+        reliable = true,
+        channel = MAIN_RELIABLE_CHANNEL,
+        selfSend = false
+    });
+
 end
 
 
@@ -109,6 +117,12 @@ function GameCommon.receivers:addPlayer(time, clientId, bodyId, sideB)
     }
 
     self.players[clientId] = player
+end
+
+
+function GameClient.receivers:score(scoreA, scoreB)
+   self.scoreA = scoreA;
+   self.scoreB = scoreB; 
 end
 
 function GameCommon.receivers:removePlayer(time, clientId)

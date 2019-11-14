@@ -39,6 +39,7 @@ function GameClient.receivers:me(time, clientId, me)
     end
 end
 
+
 local mouseState = {
     x = 0,
     y = 0,
@@ -61,11 +62,15 @@ function GameClient:mousereleased()
     mouseState.pressed = false;
 end
 
+
+
 -- Update
 
 function GameClient:queryPoint(x, y)
     local worldId, world = self.physics:getWorld();
     local body, bodyId = nil, nil;
+
+    local gameClient = self;
 
     world:queryBoundingBox(
             x - 1, y - 1, x + 1, y + 1,
@@ -80,6 +85,10 @@ function GameClient:queryPoint(x, y)
                         return true
                     end
 
+
+                    if (candidateBodyId ~= gameClient.players[gameClient.clientId].bodyId) then
+                        return true;
+                    end
                     -- Skip if owned by someone else
                     --[[
                     for _, touch in pairs(self.touches) do
@@ -243,6 +252,22 @@ end
 
 -- Draw
 
+local function drawDashedLine(x1,y1,x2,y2)
+    love.graphics.setPointSize(2);
+  
+    local x, y = x2 - x1, y2 - y1;
+    local len = math.sqrt(x^2 + y^2) / 10;
+    local stepx, stepy = x / len, y / len;
+    x = x1;
+    y = y1;
+  
+    for i = 1, len + 1 do
+      love.graphics.points(x, y);
+      x = x + stepx;
+      y = y + stepy;
+    end
+  end
+
 function GameClient:draw()
 
 
@@ -251,7 +276,7 @@ function GameClient:draw()
 
         love.graphics.translate(tx, ty);
         love.graphics.setColor(1,1,1,1);
-        love.graphics.rectangle("fill", tx, ty, tw, th);
+        love.graphics.rectangle("fill", 0, 0, tw, th);
 
         local innerCircleRadius = 50;
 
@@ -271,8 +296,14 @@ function GameClient:draw()
         drawCornerCircle(tw * 0.75, th * 0.75);
         drawCornerCircle(tw * 0.25, th * 0.75);
 
+        love.graphics.setColor(0.2, 0.2, 1.0, 1.0);
+        drawDashedLine(30, (th / 10) + (th/4), 30, (th - th/10) - (th/4));
+        drawDashedLine(tw - 30, (th / 10) + (th/4), tw - 30, (th - th/10) - (th/4));
+
+
         love.graphics.setColor(1,1,1,1);
         love.graphics.translate(-tx, -ty);
+
     end
 
     do -- Physics bodies
@@ -317,14 +348,17 @@ do -- Player avatars
             local photoImage = self.photoImages[clientId]
             if photoImage then
                 local body = self.physics:objectForId(player.bodyId)
+
+                if (body) then
                 
-                local scale = math.min(40 / photoImage:getWidth(), 40 / photoImage:getHeight())
-                --love.graphics.draw(photoImage, body:getX() - 20, body:getY() - 20, 0, scale)
+                    local scale = math.min(40 / photoImage:getWidth(), 40 / photoImage:getHeight())
+                    --love.graphics.draw(photoImage, body:getX() - 20, body:getY() - 20, 0, scale)
 
-                --love.graphics.setColor(1.0, 0.0, 0.0, 1.0);
-                --love.graphics.circle("fill", body:getX(), body:getY(), 20);
+                    --love.graphics.setColor(1.0, 0.0, 0.0, 1.0);
+                    --love.graphics.circle("fill", body:getX(), body:getY(), 20);
 
-                drawImageCircle(photoImage, body:getX(), body:getY(), 20);
+                    drawImageCircle(photoImage, body:getX(), body:getY(), 20);
+                end
             end
         end
     end
@@ -337,7 +371,18 @@ do -- Player avatars
             networkText = networkText .. '    down: ' .. math.floor(0.001 * (self.client.getENetHost():total_received_data() / timeSinceConnect)) .. 'kbps'
             networkText = networkText .. '    up: ' .. math.floor(0.001 * (self.client.getENetHost():total_sent_data() / timeSinceConnect)) .. 'kbps'
         end
-        love.graphics.setColor(0, 0, 0)
+        love.graphics.setColor(1, 1, 1)
         love.graphics.print('fps: ' .. love.timer.getFPS() .. networkText, 22, 2)
+    end
+
+    do -- Scores
+        local tx, ty, tw, th = self:getTableDimensions();
+
+        love.graphics.setColor(1,0.9,0.9,1);
+        love.graphics.print(""..(self.scoreA or "0"), tx + tw * 0.5 - 50, th + ty - 30);
+        love.graphics.print(":", tx + tw * 0.5, th - 30);
+        love.graphics.print(""..(self.scoreB or "0"), tx + tw * 0.5 + 50, th + ty - 30);
+
+
     end
 end
