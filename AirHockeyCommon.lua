@@ -120,7 +120,7 @@ function GameCommon.receivers:addPlayer(time, clientId, bodyId, sideB)
 end
 
 
-function GameClient.receivers:score(scoreA, scoreB)
+function GameClient.receivers:score(time, scoreA, scoreB)
    self.scoreA = scoreA;
    self.scoreB = scoreB; 
 end
@@ -138,4 +138,17 @@ function GameCommon:update(dt)
     if worldId then
         self.physics:updateWorld(worldId, dt)
     end
+
+
+    local tx, ty, tw, th = self:getTableDimensions();
+
+    for clientId, player in pairs(self.players) do
+        local body = self.physics:objectForId(player.bodyId);
+        if (body) then
+            local x, y = body:getPosition();
+            x, y = self:constrainPlayer(x, y, player.sideB);
+            body:setPosition(x,y);
+        end
+    end
+
 end

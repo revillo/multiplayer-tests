@@ -146,6 +146,7 @@ function GameServer:disconnect(clientId)
 end
 
 function GameServer:syncScore()
+    
     self:send({kind = 'score'}, self.scoreA, self.scoreB);
 end
 
@@ -174,7 +175,6 @@ function GameServer:update(dt)
     local tx, ty, tw, th = self:getTableDimensions();
 
     if ballX < 0 or ballX > tw then
-
 
         if (ballX < 0) then
             self:awardPoint(true);

@@ -386,9 +386,13 @@ do -- Player avatars
         local tx, ty, tw, th = self:getTableDimensions();
 
         love.graphics.setColor(1,0.9,0.9,1);
-        love.graphics.print(""..(self.scoreA or "0"), tx + tw * 0.5 - 50, th + ty - 30);
+
+        local aScore = (self.scoreA or 0);
+        local bScore = (self.scoreB or 0);
+
+        love.graphics.print(""..(aScore), tx + tw * 0.5 - 50, th + ty - 30);
         love.graphics.print(":", tx + tw * 0.5, th - 30);
-        love.graphics.print(""..(self.scoreB or "0"), tx + tw * 0.5 + 50, th + ty - 30);
+        love.graphics.print(""..(bScore), tx + tw * 0.5 + 50, th + ty - 30);
 
 
     end
