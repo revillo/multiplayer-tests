@@ -2,7 +2,6 @@ local clientServer = require 'cs'
 
 require 'game'
 
-
 local client = clientServer.client
 client.numChannels = NUM_CHANNELS
 
@@ -105,3 +104,8 @@ for loveCallback in pairs(loveCallbacks) do
         end
     end
 end
+
+return {
+    GameClient = GameClient,
+    GameCommon = GameCommon
+}

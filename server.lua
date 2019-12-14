@@ -57,3 +57,8 @@ function server.update(dt)
 
     game:_update(dt)
 end
+
+return {
+    GameServer = GameServer,
+    GameCommon = GameCommon
+}
